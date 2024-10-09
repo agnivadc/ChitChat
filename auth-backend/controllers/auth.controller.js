@@ -23,4 +23,23 @@ const signup = async (req, res) => {
     res.status(500).json({ message: "User reg failed!" });
   }
 };
+
+export const login = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
+    if (!user) return res.status(401).json({ error: "Auth failed" });
+    const passwordMatch = await bcrypt.compare(password, user?.password || "");
+    if (!passwordMatch) return res.status(401).json({ error: "Auth failed" });
+    generateJWTTokenAndSetCookie(user._id, res);
+    res.status(200).json({
+      _id: user._id,
+      username: user.username,
+    });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: "Login failed" });
+  }
+};
+
 export default signup;
