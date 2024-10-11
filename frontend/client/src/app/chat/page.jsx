@@ -2,21 +2,30 @@
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 import { useAuthStore } from "../zustand/useAuthStore";
-import axios from "axios";
 import { useUsersStore } from "../zustand/useUsersStore";
-import ChatUsers from "../_components/chatUsers";
 import { useChatReceiverStore } from "../zustand/useChatReceiverStore";
+import { useChatMsgsStore } from "../zustand/useChatMsgsStore";
+import axios from "axios";
+import ChatUsers from "../_components/chatUsers";
 
 const Chat = () => {
-  const [msgs, setMsgs] = useState([]);
+  //const [msgs, setMsgs] = useState([]);
   const [msg, setMsg] = useState("");
   const [socket, setSocket] = useState(null);
   const { authName } = useAuthStore();
   const { updateUsers } = useUsersStore();
-  const chatReceiver = useChatReceiverStore((state) => state.chatReceiver);
+  const { chatReceiver } = useChatReceiverStore();
+  const { chatMsgs, updateChatMsgs } = useChatMsgsStore();
+
+  const getUserData = async () => {
+    const res = await axios.get("http://localhost:5001/users", {
+      withCredentials: true,
+    });
+    updateUsers(res.data);
+    console.log(res.data);
+  };
 
   useEffect(() => {
-    // Establish WebSocket connection
     const newSocket = io("http://localhost:8080", {
       query: {
         username: authName,
@@ -24,24 +33,14 @@ const Chat = () => {
     });
     setSocket(newSocket);
 
-    // Listen for incoming msgs
-    newSocket.on("chat msg", (msgrecv) => {
-      console.log("received msg on client " + msgrecv);
-      setMsgs((prevMsgs) => [
-        ...prevMsgs,
-        { text: msgrecv.text, sentByCurrUser: false },
-      ]);
+    newSocket.on("chat msg", (msg) => {
+      console.log("received msg on client " + msg.text);
+      updateChatMsgs([...chatMsgs, msg]);
+      //setMsgs(prevMsgs => [...prevMsgs, {text: msg.text, sentByCurrUser: false}]);
     });
 
-    const getUserData = async () => {
-      const res = await axios.get("http://localhost:5001/users", {
-        withCredentials: true,
-      });
-      updateUsers(res.data);
-    };
     getUserData();
 
-    // Clean up function
     return () => newSocket.close();
   }, []);
 
@@ -52,42 +51,42 @@ const Chat = () => {
       sender: authName,
       receiver: chatReceiver,
     };
-
     if (socket) {
       socket.emit("chat msg", msgToBeSent);
-      setMsgs((prevMsgs) => [...prevMsgs, { text: msg, sentByCurrUser: true }]);
+      updateChatMsgs([...chatMsgs, msgToBeSent]);
+      //setMsgs(prevMsgs => [...prevMsgs, {text: msg, sentByCurrUser: true}]);
       setMsg("");
     }
   };
-
   return (
     <div className="h-screen flex divide-x-4">
-      <div className="w-1/5">
+      <div className="w-1/5 ">
         <ChatUsers />
       </div>
       <div className="w-4/5 flex flex-col">
-        <div className="h-1/5">
+        <div className="1/5">
           <h1>
-            {authName} is Chatting with {chatReceiver}
+            {authName} is chatting with {chatReceiver}
           </h1>
         </div>
         <div className="msgs-container h-3/5 overflow-scroll">
-          {msgs.map((msg, index) => (
-            <div
-              key={index}
-              className={` m-3 ${
-                msg.sentByCurrUser ? "text-right" : "text-left"
-              }`}
-            >
-              <span
-                className={`${
-                  msg.sentByCurrUser ? "bg-blue-200" : "bg-green-200"
-                } p-3 rounded-lg`}
+          {Array.isArray(chatMsgs) &&
+            chatMsgs?.map((msg, index) => (
+              <div
+                key={index}
+                className={`m-3 p-1 ${
+                  msg.sender === authName ? "text-right" : "text-left"
+                }`}
               >
-                {msg.text}
-              </span>
-            </div>
-          ))}
+                <span
+                  className={`p-2 rounded-2xl ${
+                    msg.sender === authName ? "bg-blue-200" : "bg-green-200"
+                  }`}
+                >
+                  {msg.text}
+                </span>
+              </div>
+            ))}
         </div>
         <div className="h-1/5 flex items-center justify-center">
           <form onSubmit={sendMsg} class="w-1/2">

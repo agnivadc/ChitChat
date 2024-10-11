@@ -3,8 +3,9 @@ import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
-import connectToMongoDB from "./db/connectToMongoDB";
+import connectToMongoDB from "./db/connectToMongoDB.js";
 import { addMsgToConversation } from "./controllers/msgs.controller.js";
+import msgsRouter from "./routes/msgs.route.js";
 
 // dotenv library loads environment variables from .env file into process.env
 dotenv.config();
@@ -65,6 +66,9 @@ io.on("connection", (socket) => {
 app.get("/", (req, res) => {
   res.send("Hello Folks!");
 });
+
+//route to msgs router
+app.use("/msgs", msgsRouter);
 
 // Start the server
 server.listen(port, (req, res) => {
