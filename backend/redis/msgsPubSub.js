@@ -3,25 +3,7 @@ dotenv.config();
 
 import Redis from "ioredis";
 
-// Create a Redis instance for subscribing
-// const subscriber = new Redis({
-//   host: process.env.REDIS_HOST,
-//   port: process.env.REDIS_PORT,
-//   password: process.env.REDIS_PWD,
-//   username: process.env.REDIS_USER,
-//   tls: {},
-// });
-
 const subscriber = new Redis(process.env.REDIS_SERVICE_URI);
-
-// Create a Redis instance for publishing
-// const publisher = new Redis({
-//   host: process.env.REDIS_HOST,
-//   port: process.env.REDIS_PORT,
-//   password: process.env.REDIS_PWD,
-//   username: process.env.REDIS_USER,
-//   tls: {},
-// });
 
 const publisher = new Redis(process.env.REDIS_SERVICE_URI);
 
