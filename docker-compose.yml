@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  backend:
+    build: ./backend
+    image: dcagniva/chat-backend:latest
+    ports:
+      - "8080:8080"
+
+  backend2:
+    build: ./backend
+    image: dcagniva/chat-backend2:latest
+    ports:
+      - "8084:8080"
+
+  auth-backend:
+    build: ./auth-backend
+    image: dcagniva/chat-auth-backend:latest
+    ports:
+      - "8081:8081"
+
+  frontend:
+    build: ./frontend/client
+    image: dcagniva/chat-client:latest
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  frontend2:
+    build: ./frontend_2/client
+    image: dcagniva/chat-client2:latest
+    ports:
+      - "3001:3000"
+    depends_on:
+      - backend
