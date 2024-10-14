@@ -12,9 +12,7 @@ import Redis from "ioredis";
 //   tls: {},
 // });
 
-const subscriber = new Redis(
-  "rediss://default:AVNS_OOp6y7fOEnv9oTNcN7Q@chitchat-redis-295920f1-agnivadutta1995-fd8d.d.aivencloud.com:12305"
-);
+const subscriber = new Redis(process.env.REDIS_SERVICE_URI);
 
 // Create a Redis instance for publishing
 // const publisher = new Redis({
@@ -25,9 +23,7 @@ const subscriber = new Redis(
 //   tls: {},
 // });
 
-const publisher = new Redis(
-  "rediss://default:AVNS_OOp6y7fOEnv9oTNcN7Q@chitchat-redis-295920f1-agnivadutta1995-fd8d.d.aivencloud.com:12305"
-);
+const publisher = new Redis(process.env.REDIS_SERVICE_URI);
 
 // When a message is published to a specific channel,
 // all subscribers that are listening to that channel
