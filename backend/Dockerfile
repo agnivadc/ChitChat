@@ -1,5 +1,7 @@
 # Use the latest Node.js image as the base
+
 FROM --platform=linux/amd64 node:lts-alpine3.19
+
 
 
 # Set the working directory inside the container

@@ -17,6 +17,7 @@ const Auth = () => {
     try {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BE_HOST}:8081/auth/signup`,
+
         {
           username: username,
           password: password,
